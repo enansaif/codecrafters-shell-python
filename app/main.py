@@ -1,4 +1,5 @@
 import sys
+import os
 
 class Command:
     def execute(self, arge):
@@ -13,21 +14,34 @@ class ExitCommand(Command):
         sys.exit()
 
 class TypeCommand(Command):
+    def __init__(self, commands):
+        self.commands = commands
+    
+    def search_dirs(self, command):
+        paths = os.environ.get("PATH")
+        directories = paths.split(':')
+        for directory in directories:
+            file_path = os.path.join(directory, command)
+            if os.path.isfile(file_path):
+                print(f"{command} is {file_path}")
+                return True
+        return False
+        
     def execute(self, args):
         if not args:
             print("no command given")
-        elif args[0] in ['echo', 'exit', 'type']:
+        elif args[0] in self.commands:
             print(f"{args[0]} is a shell builtin")
         else:
-            print(f"{args[0]}: not found")
+            if not self.search_dirs(command=args[0]):
+                print(f"{args[0]}: not found")
 
 class Shell:
     def __init__(self):
-        self.commands = {
-            'echo' : EchoCommand(),
-            'exit' : ExitCommand(),
-            'type' : TypeCommand(),
-        }
+        self.commands = {}
+        self.commands['type'] = TypeCommand(self.commands)
+        self.commands['echo'] = EchoCommand()
+        self.commands['exit'] = ExitCommand()
 
     def execute_command(self, command, args):
         if command in self.commands:
