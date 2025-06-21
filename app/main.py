@@ -1,5 +1,15 @@
 import sys
 import os
+import subprocess
+
+def find_command_path(command):
+    paths = os.environ.get("PATH")
+    directories = paths.split(':')
+    for directory in directories:
+        file_path = os.path.join(directory, command)
+        if os.path.isfile(file_path):
+            return file_path
+    return None
 
 class Command:
     def execute(self, arge):
@@ -16,15 +26,6 @@ class ExitCommand(Command):
 class TypeCommand(Command):
     def __init__(self, builtins):
         self.builtins = builtins
-    
-    def _find_path(self, command):
-        paths = os.environ.get("PATH")
-        directories = paths.split(':')
-        for directory in directories:
-            file_path = os.path.join(directory, command)
-            if os.path.isfile(file_path):
-                return file_path
-        return None
         
     def execute(self, args):
         if not args:
@@ -34,7 +35,7 @@ class TypeCommand(Command):
         if command in self.builtins:
             print(f"{command} is a shell builtin")
         else:
-            command_path = self._find_path(command)
+            command_path = find_command_path(command)
             if command_path:
                 print(f"{command} is {command_path}")
             else:
@@ -52,13 +53,17 @@ class Shell:
             target = self.commands[command]
             target.execute(args)
         else:
-            print(f"{command}: command not found")
+            command_path = find_command_path(command)
+            if command_path:
+                subprocess.run([command] + args)
+            else:
+                print(f"{command}: command not found")
 
 def main():
     shell = Shell()
     while True:
         try:
-            parts = input("$ ").lower().split()
+            parts = input("$ ").split()
             if not parts:
                 continue
             command, *args = parts
