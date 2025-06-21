@@ -14,27 +14,31 @@ class ExitCommand(Command):
         sys.exit()
 
 class TypeCommand(Command):
-    def __init__(self, commands):
-        self.commands = commands
+    def __init__(self, builtins):
+        self.builtins = builtins
     
-    def search_dirs(self, command):
+    def _find_path(self, command):
         paths = os.environ.get("PATH")
         directories = paths.split(':')
         for directory in directories:
             file_path = os.path.join(directory, command)
             if os.path.isfile(file_path):
-                print(f"{command} is {file_path}")
-                return True
-        return False
+                return file_path
+        return None
         
     def execute(self, args):
         if not args:
             print("no command given")
-        elif args[0] in self.commands:
-            print(f"{args[0]} is a shell builtin")
+            return
+        command = args[0]
+        if command in self.builtins:
+            print(f"{command} is a shell builtin")
         else:
-            if not self.search_dirs(command=args[0]):
-                print(f"{args[0]}: not found")
+            command_path = self._find_path(command)
+            if command_path:
+                print(f"{command} is {command_path}")
+            else:
+                print(f"{command}: not found")
 
 class Shell:
     def __init__(self):
