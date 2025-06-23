@@ -29,7 +29,7 @@ class TypeCommand(Command):
         
     def execute(self, args):
         if not args:
-            print("no command given")
+            print("no input given")
             return
         command = args[0]
         if command in self.builtins:
@@ -42,7 +42,7 @@ class TypeCommand(Command):
                 print(f"{command}: not found")
 
 class PwdCommand(Command):
-    def execute(self, arge):
+    def execute(self, args):
         print(os.getcwd())
 
 class CdCommand(Command):
