@@ -12,7 +12,7 @@ def find_command_path(command):
     return None
 
 class Command:
-    def execute(self, arge):
+    def execute(self, args):
         raise NotImplementedError("Execute function has to be implemented")
 
 class EchoCommand(Command):
@@ -45,6 +45,17 @@ class PwdCommand(Command):
     def execute(self, arge):
         print(os.getcwd())
 
+class CdCommand(Command):
+    def execute(self, args):
+        if not args:
+            print("no input given")
+            return
+        directory = args[0]
+        if not os.path.isdir(directory):
+            print(f"cd: {directory}: No such file or directory")
+        else:
+            os.chdir(directory)
+            
 class Shell:
     def __init__(self):
         self.commands = {}
@@ -52,6 +63,7 @@ class Shell:
         self.commands['echo'] = EchoCommand()
         self.commands['exit'] = ExitCommand()
         self.commands['pwd'] = PwdCommand()
+        self.commands['cd'] = CdCommand()
 
     def execute_command(self, command, args):
         if command in self.commands:
