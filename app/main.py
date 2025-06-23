@@ -41,12 +41,17 @@ class TypeCommand(Command):
             else:
                 print(f"{command}: not found")
 
+class PwdCommand(Command):
+    def execute(self, arge):
+        print(os.getcwd())
+
 class Shell:
     def __init__(self):
         self.commands = {}
         self.commands['type'] = TypeCommand(self.commands)
         self.commands['echo'] = EchoCommand()
         self.commands['exit'] = ExitCommand()
+        self.commands['pwd'] = PwdCommand()
 
     def execute_command(self, command, args):
         if command in self.commands:
