@@ -51,7 +51,9 @@ class CdCommand(Command):
             print("no input given")
             return
         directory = args[0]
-        if not os.path.isdir(directory):
+        if directory == '~':
+            os.chdir(os.environ['HOME'])
+        elif not os.path.isdir(directory):
             print(f"cd: {directory}: No such file or directory")
         else:
             os.chdir(directory)
