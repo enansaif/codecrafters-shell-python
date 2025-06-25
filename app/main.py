@@ -11,6 +11,22 @@ def find_command_path(command):
             return file_path
     return None
 
+def shlex_split(command):
+    parts, temp = [], ""
+    in_quote = False
+    for i in range(len(command)):
+        if command[i] == "'":
+            in_quote = not in_quote
+        elif command[i] == ' ' and not in_quote:
+            if temp: 
+                parts.append(temp)
+            temp = ''
+        else:
+            temp += command[i]
+    if temp:
+        parts.append(temp)
+    return [part.replace("'", "") for part in parts]
+
 class Command:
     def execute(self, args):
         raise NotImplementedError("Execute function has to be implemented")
@@ -82,10 +98,10 @@ def main():
     shell = Shell()
     while True:
         try:
-            parts = input("$ ").split()
+            parts = input("$ ")
             if not parts:
                 continue
-            command, *args = parts
+            command, *args = shlex_split(parts)
             shell.execute_command(command, args)
         except Exception as e:
             print(f"Error {e}")
